@@ -6,6 +6,24 @@ The program utilizes C++ and CUDA to process video files via the OpenCV library,
 Main Function for displaying the GPU & CPU results:
 As shown in the image, I have defined two classes: one handling the video file opening and retrieving camera images, and another class for handling the color space conversion on either GPU or CPU.
 Moreover, the computation on CPU & GPU are async operations using std::future.
+
 ![](imgs/mainFunction.png)
+
+CUDA Kernel:
+Block dimension is (32,32, 1) to be sure that it fits to all GPU hardwares
+Grid Dimension is grid((width + block.x - 1) / block.x, (height + block.y - 1) / block.y, 1) so that each cuda thread is mapped to each image pixel.
+Note that the input image has 3 dimensional which means that each cuda thread is responsible for handling the 3 dimensional.
+The mapping between cuda thread indices and pixel indices are shown below
+
+![](imgs/CudaKernel.png)
+
+
+CUDA Kernel Benchmark Test using Nsight
+To make sure that the model is not suffering from uncoalesced memory access, 
+NCU benchmark test is done and showing before which shows that memory bandwidth has low utilization compared to compute utilization.
+![](imgs/ProfilingWithNsight.png)
+
+Latency time for each line of Cuda Kernel is also showed below showing that math power functions has the highest latency in computations!
+![](imgs/ProfilingWithNsight1.png)
 
 
